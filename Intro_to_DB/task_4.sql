@@ -1,0 +1,1 @@
+SHOW COLUMNS FROM Books FROM alx_book_store;
