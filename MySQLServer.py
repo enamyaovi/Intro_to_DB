@@ -12,7 +12,7 @@ try:
     with mySQL.connect(**config) as Cnx:
         with Cnx.cursor() as myCursor:
             try:
-                myCursor.execute( "CREATE DATABASE alx_book_store;" , multi=True)
+                myCursor.execute( "CREATE DATABASE IF NOT EXISTS alx_book_store;" , multi=True)
                 print("Database 'alx_book_store' created successfully!")
                 Cnx.commit()
             except mySQL.DatabaseError as e:
