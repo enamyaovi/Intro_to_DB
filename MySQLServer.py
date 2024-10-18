@@ -4,8 +4,8 @@ from getpass import getpass
 import mysql.connector.errorcode
 
 config = {
-    'host' : '172.17.176.1',
-    'user' : 'enamyaovi',
+    'host' : '127.0.0.1',
+    'user' : 'root',
     'password': getpass('Enter your password: ')
     }
 
