@@ -1,47 +1,38 @@
-import mysql.connector
+import mysql.connector  # Importing MySQL connector library to interact with the MySQL database
+import mysql.connector.errorcode  # Importing MySQL error codes to handle specific errors
 
-"""
-This is a simple python script file 
-Used to create a database on mysql using
-mysql connector in python (mysqlx for windows).
-The connections will be wrapped in a try and except block
-the try block will contain the connector, cursor and queries
-since this is a simple script there will be no need for nested try blocks
-if the query 'database creation' is successful and throws no errors
-then the else block with a single print statement should execute
-the finally block closes the connection to our server
-the except block will contain a tuple of mysql.connector general Exceptions base Exception errors
-"""
+# Configuration dictionary containing the necessary details for connecting to the MySQL server
+config = {
+    'host': 'localhost',  # MySQL server host (usually localhost)
+    'user': 'root',  # MySQL user (e.g., root)
+    'password': 'somepassword'  # Password for the specified user
+}
 
-try: # contains connector, cursor and queries for database creation
-    server_connection = mysql.connector.connect(
-                                host = 'localhost',
-                                user = 'root',
-                                password = 'somepassword'
-                                                    ) # Most of the kwargs provided here are generic.
+# Attempt to establish a connection to the MySQL server
+try:
+    # Using 'with' to ensure connection is closed properly after completion
+    with mysql.connector.connect(**config) as Cnx:
+        # Using another 'with' to ensure cursor is properly closed after execution
+        with Cnx.cursor() as myCursor:
+            try:
+                # Executing SQL query to create a database called 'alx_book_store'
+                # Note: There is a typo in 'CREAT', should be 'CREATE'
+                myCursor.execute("CREATE DATABASE IF NOT EXISTS alx_book_store;", multi=True)
+                
+                # If the query is successful, print a confirmation message
+                print("Database 'alx_book_store' created successfully!")
+                
+                # Committing the transaction to apply changes to the database
+                Cnx.commit()
+            except mysql.connector.DatabaseError as e:
+                # Catch any database-related errors (e.g., syntax error in SQL query)
+                print(e)
 
-    mycursor = server_connection.cursor()# creates a cursor for executing the query for database creation
-
-    """
-    After this block of comment is the query/execute statement section. This could have been included in a nested try block
-    But for the sake of simplicity we would keep everything in one block
-    The down side is that if there are any exceptions raised we will have a hard time knowing which line of code raised the error
-    But for a simple code as this it will be straight forward.
-    """
-    mycursor.execute(
-                    """
-                    CREATE DATABASE IF NOT EXISTS alx_book_store;
-                    """
-                    ) #the if not exists clause exists 'pun intended' to prevent a database error from being raised
-    
-
-except mysql.connector.Error as e: # since our script file is a simple script we will stick to the base exception error for DBs in mysql
-    print('Something went wrong: {}'.format(e))
-
-except BaseException as e: # Base exception for other type of errors
-    print(f'Error: {e}')
-else:
-    print("Database: 'alx_book_store' created successfully!") #if no error/exception arises we want to print this
-finally:
-    mycursor.close()
-    server_connection.close() #releasing all resources
+# Catching general MySQL connector errors (such as connection issues)
+except mysql.connector.Error as e:
+    # Check if the error is related to access (e.g., incorrect username or password)
+    if e.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+        print("Something is wrong with your password or username")
+    else:
+        # Print any other general error
+        print(e)
